@@ -1,0 +1,38 @@
+
+    
+    
+    
+    
+"""# If a row in the table is selected, filter the map to focus on that row
+    if selected_rows:
+        selected_row = selected_rows[0]  # Assume single selection
+        filtered_df = df[df['name'] == selected_row['name']]
+    elif hoverData:
+        hovered_city = hoverData['points'][0]['customdata']
+        filtered_df = df[df['state'] == hovered_city]
+    else:
+        filtered_df = df
+
+    # Create map figure
+    fig = px.scatter_mapbox(
+        filtered_df, lat="lat", lon="lng", color="predicted_views",
+        size="views_sum", hover_name="name", hover_data=["views_sum", "sentiment", "profession"],
+        zoom=3, mapbox_style="open-street-map",
+        title="Geospatial Visualization of Predicted Views"
+    )
+
+    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    return fig
+
+# Update table based on map hover/click
+@callback(
+    Output('table_detail', 'rowData'),
+    Input('geo-graph', 'hoverData')
+)
+def update_table(hoverData):
+    if hoverData:
+        hovered_city = hoverData['points'][0]['customdata']
+        filtered_df = df[df['state'] == hovered_city]  # You can filter by city or state as needed
+        return filtered_df.to_dict('records')
+    return df.to_dict('records')
+"""
