@@ -83,24 +83,31 @@ layout = dbc.Container(
 
 
 # Define the callback for updating the map and the table
+# Define the callback for updating the map and the table
 @callback(
     Output('geo-graph', 'figure'),
     Output('table_detail', 'rowData'),
-    Input('geo-graph', 'hoverData')
+    Input('geo-graph', 'hoverData'),
+    Input('table_detail', 'selectedRows')
 )
-def update_map_and_table(hoverData):
+def update_map_and_table(hoverData, selected_table_row):
     # Default to entire dataset
     filtered_df = df.copy()
 
-    # Check if hoverData is available and valid
-    if hoverData and 'points' in hoverData and len(hoverData['points']) > 0:
-        # Extract state from hover data
-        hover_point = hoverData['points'][0]
-        state = hover_point.get('location', None)  # Assuming 'location' refers to the state
+    ## Handle hover data on the map
+    if hoverData:
+        hover_name = hoverData['points'][0]['hovertext']
+        filtered_df = df[df['name'] == hover_name]
 
-        # If state is available, filter the dataframe for all cities in that state
-        if state is not None:
-            filtered_df = df[df['state'] == state]
+    # Handle hover or selection on the table
+    elif selected_table_row:
+        selected_name = selected_table_row[0]['name']
+        filtered_df = df[df['name'] == selected_name]
+
+    # Recalculate predictions if data is filtered
+    if not filtered_df.empty:
+        filtered_df['predicted_views'] = model.predict(filtered_df[['views_median']])
+
 
     # Create map figure showing the filtered data points
     fig = px.scatter_mapbox(
